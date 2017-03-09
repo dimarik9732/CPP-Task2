@@ -41,8 +41,11 @@ class List{
 	struct Node{
 		Edge elem;
 		Node *next;
-		Node(Edge value, Node *next = NULL): elem(value){
-			this->next = next;
+		Node(Edge value): elem(value){ this->next = NULL;}
+		Node(const Node *);
+		~Node(){
+			if (this->next)
+				delete this->next;
 		}
 	};
 

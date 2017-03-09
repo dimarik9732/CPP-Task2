@@ -1,5 +1,11 @@
 #include "graph.h"
 using namespace std;
+// List Node
+List::Node::Node(const Node *another){
+	elem = another->elem;
+	if (another->next)
+		next = new Node(another->next);
+}
 
 // LIST
 List::List(const List & another){
@@ -11,21 +17,12 @@ List::List(const List & another){
 		return;
 	}
 	else{
-		first = new Node(another.first->elem);
-		length = 1;
-		Node *current = first;
-		Node *an_cur = another.first->next;
-		while (an_cur){
-			current->next = new Node(an_cur->elem);
-			++length;
-			if (!an_cur->next){
-				last = current->next;
-				return;
-			}
-			an_cur = an_cur->next;
-			current = current->next;
-		}
-		return;
+		first = new Node(another.first);
+		length = another.length;
+		Node *cur = first;
+		for (int i = 0; i < length - 1; ++i)
+			cur = cur->next;
+		last = cur;
 	}
 }
 
@@ -64,13 +61,9 @@ Edge& List::operator[](int n) throw(errors){
 
 void List::clear(){
 	if (!first) return;
-	Node *cur = first;
-	while (cur){
-		Node *temp = cur->next;
-		delete cur;
-		cur = temp;
-	}
+	delete first;
 	first = NULL;
+	last = NULL;
 	length = 0;
 	return;
 }
