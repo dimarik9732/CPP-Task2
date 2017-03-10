@@ -10,7 +10,14 @@ class Edge{
 	int weight;
 public:
 	Edge (Vertices f, Vertices t, int w = 1): from(f), to(t), weight(w){};
-	// Edge (const char*);
+	Edge (const char*) throw (Errors);
+	
+	Vertices get_to() const{
+		return to;
+	}
+	Vertices get_from() const{
+		return from;
+	}
 	friend ostream& operator << (ostream& s, const Edge & a);
 	friend bool operator == (const Edge &a, const Edge &b);
 };

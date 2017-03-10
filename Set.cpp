@@ -1,6 +1,13 @@
 #include "Set.h"
 
 // Set Node
+Set::Node::Node(const Node* another):elem(another->elem), right(NULL), left(NULL){
+	if (another->left)
+		left = new Node(another->left);
+	if (another->right)
+		right = new Node(another->right);
+}
+
 void Set::Node::insert(const Vertices &v){
 	if (v == this->elem){
 		return;
@@ -96,7 +103,62 @@ Set::Node* Set::Node::del(const Vertices &v){
 	return this;
 }
 
+void Set::Node::merge(const Node * another){
+	if(!another) return;
+	this->insert(another->elem);
+	this->merge(another->left);
+	this->merge(another->right);
+}
+
+int Set::Node::upsize() const{
+	if (this == NULL)
+		return 0;
+	else 
+		return this->left->upsize() + 1 + this->right->upsize();
+}
+
 //Set
+Set::Set(const Set &another):root(NULL){
+	size = another.size;
+	if (another.root)
+		root = new Node(another.root);
+}
+
+Set::Set(const char*s)throw(Errors){
+
+	char *ns = new char[strlen(s)+1];
+	strcpy(ns, s);
+
+	char *ch1 = strchr(ns, '{');
+	if (!ch1)
+		throw Errors("Bad Construct Set");
+	char *ch2 = strchr(ns, ',');
+
+	if (!ch2){
+		root = new Node(ch1+1);
+		size = 1;
+		delete[] ns;
+		return;
+	}
+
+	*ch2 = '\0';
+	root = new Node(ch1+1);
+	size = 1;
+	ch1 = ch2 + 1;
+	ch2 = strchr(ch1+1, ',');
+	while (ch1 || (ch1 && ch2)){
+		if (ch2)
+			*ch2 = '\0';
+		root->insert(ch1+1);
+		if (ch2){
+			ch1 = ch2 + 1;
+			ch2 = strchr(ch1+1, ',');
+		}
+		else ch1 = NULL;
+		++size;
+	}
+	delete[] ns;
+}
 void Set::insert(const Vertices & v){
 	if (this->root)
 		this->root->insert(v);
@@ -124,7 +186,37 @@ void Set::clear(){
 		size = 0;
 	}
 }
+Set &Set::operator= (const Set & another){
+	if (this == &another){
+		return *this;
+	}
 
+	this->clear();
+	if (another.root)
+		root = new Node(another.root);
+	size = another.size;
+	return *this;
+}
+
+Set &Set::operator+= (const Set &another){
+	root->merge(another.root);
+	size = root->upsize();
+	return *this;
+}
+
+int Set::get_size(){
+	return this->size;
+}
+
+bool operator == (const Set::Node & a, const Set::Node & b){
+
+	if (!&a && !&b) return true;
+
+	if (!(&a && &b)) return false;
+
+	bool res = (a.elem == b.elem) && *a.right == *b.right && *a.left == *b.left;
+	return res;
+}	
 // operator <<
 using namespace std; 
 ostream& operator << (ostream& s, const Set::Node &a){
@@ -146,6 +238,11 @@ ostream& operator << (ostream& s, const Set &a){
 		s << (*a.root);
 	else
 		s << "empty";
-	s << " }";
+	s << "}";
 	return s;
+}
+bool operator== (const Set& a, const Set& b){
+	if (a.size != b.size) return false;
+
+
 }

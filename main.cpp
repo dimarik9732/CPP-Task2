@@ -1,36 +1,43 @@
-#include "Set.h"
+#include "Graph.h"
 #include <iostream>
 using namespace std;
 
 int main(void)
 {
 
+	// Graph g2("( {(1), (2), (3)} [|(1) (2)|, |(3) (1)|] )");
+	
+	Edge e1(2, 3);
 
-	Set s, t;
-	s.insert(80);
-	s.insert(5);
-	s.insert(1000);
-	s.insert(40);
-	s.insert(3);
-	s.insert(49);
-	s.insert(55);
-	s.insert(50);
-	s.insert(51);
-	s.insert(30);
-	s.insert(28);
-	s.insert(29);
-	s.insert(6);
-	s.insert(10);
-	s.insert(15);
-	s.insert(9);
-	cout << s.contains(5) << endl;
-	cout << s.contains(10	)<< endl;
-	// cout << t.contains(4) << endl;
-	s.del(80);
-	s.del(1000);
-	s.del(5);
-	cout << s << endl;
-	s.clear();
-	cout << s << endl;  		
+	Graph g2("( {(1), (2)} [|(1) (2)|] )"), g3("( {(1), (2), (3)} [|(1) (2)|] )"), g4("( {(1), (2), (3)}) [|(1) (2)|, |(2) (3)|] )");	
+	g2 += 3;
+	if (g2 == g3)
+		cout << "operator += for Vertice Test +" << endl;
+	else 
+		cout << "operator += for Vertice Test -" << endl;
+
+	g2 += e1;
+	if (g2 == g4)
+		cout << "operator += for Edge Test +" << endl;
+	else 
+		cout << "operator += for Edge Test -" << endl;
+
+	g3 += g4;
+
+	// cout << g3;
+	cout << g3 << endl;
+	// cout << g4 << endl;
+
+	
+	// if (g3 == g4)
+		// cout << "operator += for Graph Test +" << endl;
+	// else 
+		// cout << "operator += for Graph Test -" << endl;
+
+	if (g2.istherepath(1, 3)){
+		cout << "istherepath Test +" << endl;
+	}
+	else
+		cout << "istherepath Test -" << endl; 
 	return 0;
 }

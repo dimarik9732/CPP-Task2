@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-Wall -g
 LDFLAGS=-g
 MAINSOURCE=main.cpp
-SOURCES=Set.cpp List.cpp Edge.cpp Vertices.cpp
+SOURCES=Set.cpp List.cpp Edge.cpp Vertices.cpp Graph.cpp Queque.cpp
 HEADERS=$(SOURCES:.cpp=.h)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=main
