@@ -1,106 +1,11 @@
 #include "Set.h"
 
 // Set Node
-Set::Node::Node(const Node* another):elem(another->elem), right(NULL), left(NULL){
+Set::Node::Node(const Node* another):elem(another->elem), right(NULL), left(NULL), height(another->height){
 	if (another->left)
 		left = new Node(another->left);
 	if (another->right)
 		right = new Node(another->right);
-}
-
-void Set::Node::insert(const Vertices &v){
-	if (v == this->elem){
-		return;
-	}
-	if (v > this->elem){
-		if (this->right)
-			this->right->insert(v);
-		else this->right = new Node (v);
-	}
-	if (v < this->elem){
-		if (this->left){
-			this->left->insert(v);
-		}
-		else this->left = new Node(v);
-	}
-	return; 
-}
-
-Set::Node* Set::Node::findWithParent(const Vertices &v, Set::Node* &parent){
-	Node * current = this;
-	parent = NULL;
-
-	while (current){
-
-		if (v == current->elem)
-			break;
-		
-		parent = current;
-		if (v  > current->elem)
-			current = current->right;
-		else 
-			current = current->left;	
-	}
-
-	return current;
-}
-
-Set::Node* Set::Node::del(const Vertices &v){
-	Node *parent, *current; 
-	current = this->findWithParent(v, parent);
-	if (!current->right){
-		// Node hasn`t got right child
-		if(!parent){
-			Node *temp = current->left;
-			current->left = NULL;
-			delete current;
-			return temp;
-		}
-		if (parent->left == current)
-			parent->left = current->left;
-		else 
-			parent->right = current->left;
-	}
-	else 
-		if (!current->right->left){
-			// Node has got right child, which hasn`t got left child
-			current->right->left = current->left;
-			if(!parent){
-				Node *temp = current->right;
-				current->right = NULL;
-				current->left = NULL;
-				delete current;
-				return temp;		
-			}
-			if (parent->left == current)
-				parent->left = current->right;
-			else 
-				parent->right = current->right;		
-		}
-	else {
-		// Node has got right child, which has got left child
-		Node *cur = current->right;
-		while(cur->left->left)
-			cur = cur->left;
-		Node *tmp = cur->left;
-		cur->left = tmp->right;
-		tmp->left = current->left;
-		tmp->right = current->right;
-		if (!parent){
-			current->right = NULL;
-			current->left = NULL;
-			delete current;
-			return tmp;
-		}
-		if (parent->left == current)
-			parent->left = tmp;
-		else 
-			parent->right = tmp;		
-	}
-	current->right = NULL;
-	current->left = NULL;
-	delete current;
-	return this;
 }
 
 void Set::Node::merge(const Node * another){
@@ -149,7 +54,7 @@ Set::Set(const char*s)throw(Errors){
 	while (ch1 || (ch1 && ch2)){
 		if (ch2)
 			*ch2 = '\0';
-		root->insert(ch1+1);
+		root = insert(root, ch1+1);
 		if (ch2){
 			ch1 = ch2 + 1;
 			ch2 = strchr(ch1+1, ',');
@@ -159,24 +64,117 @@ Set::Set(const char*s)throw(Errors){
 	}
 	delete[] ns;
 }
+
+unsigned char Set::height(Node *p){
+	return p ? p->height : 0;
+}
+
+int Set::bfactor(Node* p){
+	return height(p->left) - height(p->right);
+}
+
+void Set::fixheight(Node* p){
+	unsigned char hl = height(p->left);
+	unsigned char hr = height(p->right);
+	p->height = (hl > hr ? hl : hr) + 1; 
+}
+
+Set::Node *Set::rotateRight(Set::Node *p){
+	Node * q = p->left;
+	p->left = q->right;
+	q->right = p;
+	fixheight(p);
+	fixheight(q);
+	return q;
+}
+
+Set::Node *Set::rotateLeft(Set::Node *q){
+	Node * p = q->right;
+	q->right = p->left;
+	p->left = q;
+	fixheight(p);
+	fixheight(q);
+	return p;
+}
+
+Set::Node *Set::balance(Set::Node* p){
+	fixheight(p);
+	if (bfactor(p) == 2){
+		if (bfactor(p->right) < 0)
+			p->right = rotateRight(p->right);
+		return rotateLeft(p);
+	}
+	if (bfactor(p) == -2){
+		if (bfactor(p->left) > 0)
+			p->left = rotateLeft(p->left);
+		return rotateRight(p);
+	}
+	return p;
+}
+
+Set::Node *Set::insert(Node *p, const Vertices &v){
+	if (!p) return new Node(v);
+	if (v = p->elem) return p;
+	if (v < p->elem)
+		p->left = insert(p->left, v);
+	else
+		p->right = insert(p->right, v);
+	return balance(p); 
+}
+
+Set::Node* Set::findRmMin(Set::Node* p, Set::Node *&min){
+	if (!p->left) {
+		min = p;
+		return p->right;
+	}
+	else {
+		p->left = findRmMin(p->left, min);
+		return balance(p);
+	}
+}
+
+Set::Node* Set::remove(Set::Node* p, const Vertices& v){
+	if (!p) return NULL;
+	if ( v < p->elem){
+		p->left = remove(p->left, v);
+	}
+	if ( v > p->elem){
+		p->right = remove(p->right, v);
+	}
+
+	if ( v == p->elem) {
+		Node * q = p->left;
+		Node * r = p->right;
+		delete p;
+
+		if (!r) return q;
+		Node *min;
+		r = findRmMin(r, min);
+		min->right = r;
+		min->left = q;
+		return balance(min);
+	}
+	return balance(p);
+}
 void Set::insert(const Vertices & v){
-	if (this->root)
-		this->root->insert(v);
-	else 
-		this->root = new Node(v);
+	root = insert(root, v);
 	++size;
 }
 
-bool Set::contains(const Vertices &v) const{
-	Node * parent;
-	return root && (root->findWithParent(v, parent));
+bool Set::contains(Set::Node* p, const Vertices &v) const{
+	if (!p) return false;
+	if (p->elem == v) return true;
+	if (v > p->elem) return contains(p->right, v);
+	else return contains(p->left, v);
 }
 
-void Set::del(const Vertices &v){
-	if (root){
-		root = root->del(v);
-		--size;
-	}
+bool Set::contains(const Vertices &v){
+	return contains(root, v);
+}
+
+void Set::remove(const Vertices &v){
+	root = remove(root, v);
+	--size;
 }
 
 void Set::clear(){
@@ -186,6 +184,7 @@ void Set::clear(){
 		size = 0;
 	}
 }
+
 Set &Set::operator= (const Set & another){
 	if (this == &another){
 		return *this;

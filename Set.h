@@ -7,17 +7,12 @@ using namespace std;
 class Set{
 	struct Node{
 		Vertices elem;
+		unsigned char height;
 		Node *right;
 		Node *left;
-		Node(const Vertices &a):elem(a), right(NULL), left(NULL){};
+		Node(const Vertices &a):elem(a), height(1), right(NULL), left(NULL){};
 		Node(const Node *);
-		friend ostream& operator << (ostream& s, const Node &a);
-		void insert(const Vertices &);
-		void merge(const Node *);
-		Node *del(const Vertices &);
-		Node *findWithParent(const Vertices &, Node *&);
 		int upsize() const;
-		friend bool operator == (const Node&, const Node&);
 		~Node(){
 			if (this->left)
 				delete this->left;
@@ -28,14 +23,31 @@ class Set{
 
 	Node *root;
 	int size;
+
+	Node *insertNode(const Vertices &);
+	Node *merge(const Node *);
+	Node *remove(const Vertices &);
+	// Node *findWithParent(const Vertices &, Node *&);
+	Node *findMin(Node*) const;
+	Node *rotateRight(Node*);
+	Node *rotateLeft(Node*);
+	Node *balance(Node*);
+	unsigned char height(Node *) const;
+	int bfactor(Node *) const;
+	void fixheight(Node *);
+
 public:
 	Set(): root(NULL), size(0){};
 	Set(const Set &);
 	Set(const char*)throw(Errors);
+	
+	// friend bool operator == (const Node&, const Node&);
 	void insert(const Vertices &);
 	void del(const Vertices &);
 	bool contains(const Vertices &) const;
 	void clear();
+
+
 	Set& operator=(const Set &);
 	Set& operator+=(const Set &);
 	int get_size();
