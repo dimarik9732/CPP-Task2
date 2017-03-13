@@ -8,14 +8,7 @@ Set::Node::Node(const Node* another):elem(another->elem), right(NULL), left(NULL
 		right = new Node(another->right);
 }
 
-void Set::Node::merge(const Node * another){
-	if(!another) return;
-	this->insert(another->elem);
-	this->merge(another->left);
-	this->merge(another->right);
-}
-
-int Set::Node::upsize() const{
+unsigned int Set::Node::upsize() const{
 	if (this == NULL)
 		return 0;
 	else 
@@ -23,6 +16,115 @@ int Set::Node::upsize() const{
 }
 
 //Set
+// Private
+unsigned char Set::height(Node *p) const{
+	return p ? p->height : 0;
+}
+
+int Set::bfactor(Node* p) const{
+	return height(p->left) - height(p->right);
+}
+
+void Set::fixheight(Node* p){
+	unsigned char hl = height(p->left);
+	unsigned char hr = height(p->right);
+	p->height = (hl > hr ? hl : hr) + 1; 
+}
+
+Set::Node *Set::rotateRight(Set::Node *p){
+	Node * q = p->left;
+	p->left = q->right;
+	q->right = p;
+	fixheight(p);
+	fixheight(q);
+	return q;
+}
+
+Set::Node *Set::rotateLeft(Set::Node *q){
+	Node * p = q->right;
+	q->right = p->left;
+	p->left = q;
+	fixheight(q);
+	fixheight(p);
+	return p;
+}
+
+Set::Node *Set::balance(Set::Node* p){
+	fixheight(p);
+	if (bfactor(p) == 2){
+		if (bfactor(p->left) < 0)
+			p->left = rotateLeft(p->left);
+		return rotateRight(p);
+	}
+	if (bfactor(p) == -2){
+		if (bfactor(p->right) > 0)
+			p->right = rotateRight(p->right);
+		return rotateLeft(p);
+	}
+	return p;
+}
+
+Set::Node *Set::insert(Node *p, const Vertices &v){
+	if (!p) return new Node(v);
+	if (v == p->elem) return p;
+	if (v < p->elem)
+		p->left = insert(p->left, v);
+	else
+		p->right = insert(p->right, v);
+	return balance(p); 
+}
+
+Set::Node* Set::findRmMin(Set::Node* p, Set::Node *&min){
+	if (!p->left) {
+		min = p;
+		return p->right;
+	}
+	else {
+		p->left = findRmMin(p->left, min);
+		return balance(p);
+	}
+}
+
+Set::Node* Set::remove(Set::Node* p, const Vertices& v){
+	if (!p) return NULL;
+	if ( v < p->elem){
+		p->left = remove(p->left, v);
+	}
+	if ( v > p->elem){
+		p->right = remove(p->right, v);
+	}
+
+	if ( v == p->elem) {
+		Node * q = p->left;
+		Node * r = p->right;
+		delete p;
+
+		if (!r) return q;
+		Node *min;
+		r = findRmMin(r, min);
+		min->right = r;
+		min->left = q;
+		return balance(min);
+	}
+	return balance(p);
+}
+
+bool Set::contains(Set::Node* p, const Vertices &v) const{
+	if (!p) return false;
+	if (p->elem == v) return true;
+	if (v > p->elem) return contains(p->right, v);
+	else return contains(p->left, v);
+}
+
+void Set::merge(Set::Node*& it , const Node * another){
+	if(!another) return;
+	it = insert(it, another->elem);
+	merge(it, another->left);
+	merge(it, another->right);
+	return;
+}
+
+// Public
 Set::Set(const Set &another):root(NULL){
 	size = another.size;
 	if (another.root)
@@ -65,110 +167,12 @@ Set::Set(const char*s)throw(Errors){
 	delete[] ns;
 }
 
-unsigned char Set::height(Node *p){
-	return p ? p->height : 0;
-}
-
-int Set::bfactor(Node* p){
-	return height(p->left) - height(p->right);
-}
-
-void Set::fixheight(Node* p){
-	unsigned char hl = height(p->left);
-	unsigned char hr = height(p->right);
-	p->height = (hl > hr ? hl : hr) + 1; 
-}
-
-Set::Node *Set::rotateRight(Set::Node *p){
-	Node * q = p->left;
-	p->left = q->right;
-	q->right = p;
-	fixheight(p);
-	fixheight(q);
-	return q;
-}
-
-Set::Node *Set::rotateLeft(Set::Node *q){
-	Node * p = q->right;
-	q->right = p->left;
-	p->left = q;
-	fixheight(p);
-	fixheight(q);
-	return p;
-}
-
-Set::Node *Set::balance(Set::Node* p){
-	fixheight(p);
-	if (bfactor(p) == 2){
-		if (bfactor(p->right) < 0)
-			p->right = rotateRight(p->right);
-		return rotateLeft(p);
-	}
-	if (bfactor(p) == -2){
-		if (bfactor(p->left) > 0)
-			p->left = rotateLeft(p->left);
-		return rotateRight(p);
-	}
-	return p;
-}
-
-Set::Node *Set::insert(Node *p, const Vertices &v){
-	if (!p) return new Node(v);
-	if (v = p->elem) return p;
-	if (v < p->elem)
-		p->left = insert(p->left, v);
-	else
-		p->right = insert(p->right, v);
-	return balance(p); 
-}
-
-Set::Node* Set::findRmMin(Set::Node* p, Set::Node *&min){
-	if (!p->left) {
-		min = p;
-		return p->right;
-	}
-	else {
-		p->left = findRmMin(p->left, min);
-		return balance(p);
-	}
-}
-
-Set::Node* Set::remove(Set::Node* p, const Vertices& v){
-	if (!p) return NULL;
-	if ( v < p->elem){
-		p->left = remove(p->left, v);
-	}
-	if ( v > p->elem){
-		p->right = remove(p->right, v);
-	}
-
-	if ( v == p->elem) {
-		Node * q = p->left;
-		Node * r = p->right;
-		delete p;
-
-		if (!r) return q;
-		Node *min;
-		r = findRmMin(r, min);
-		min->right = r;
-		min->left = q;
-		return balance(min);
-	}
-	return balance(p);
-}
 void Set::insert(const Vertices & v){
 	root = insert(root, v);
 	++size;
 }
 
-bool Set::contains(Set::Node* p, const Vertices &v) const{
-	if (!p) return false;
-	if (p->elem == v) return true;
-	if (v > p->elem) return contains(p->right, v);
-	else return contains(p->left, v);
-}
-
-bool Set::contains(const Vertices &v){
+bool Set::contains(const Vertices &v) const{
 	return contains(root, v);
 }
 
@@ -198,16 +202,17 @@ Set &Set::operator= (const Set & another){
 }
 
 Set &Set::operator+= (const Set &another){
-	root->merge(another.root);
+	merge(root, another.root);
 	size = root->upsize();
 	return *this;
 }
+
 
 int Set::get_size(){
 	return this->size;
 }
 
-bool operator == (const Set::Node & a, const Set::Node & b){
+/*bool operator == (const Set::Node & a, const Set::Node & b){
 
 	if (!&a && !&b) return true;
 
@@ -215,7 +220,8 @@ bool operator == (const Set::Node & a, const Set::Node & b){
 
 	bool res = (a.elem == b.elem) && *a.right == *b.right && *a.left == *b.left;
 	return res;
-}	
+}*/	
+
 // operator <<
 using namespace std; 
 ostream& operator << (ostream& s, const Set::Node &a){
@@ -240,8 +246,9 @@ ostream& operator << (ostream& s, const Set &a){
 	s << "}";
 	return s;
 }
-bool operator== (const Set& a, const Set& b){
+
+/*bool operator== (const Set& a, const Set& b){
 	if (a.size != b.size) return false;
 
 
-}
+}*/
