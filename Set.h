@@ -1,6 +1,7 @@
 #ifndef __SET_H__
 #define __SET_H__
 #include "Vertices.h"
+#include "Queque.h"
 #include <iostream>
 using namespace std;
 // SET
@@ -34,6 +35,7 @@ class Set{
 	Node *remove(Node *, const Vertices &);
 	void merge(Node *&, const Node *);
 	bool contains(Node *, const Vertices &) const;
+static	void tree_to_queque(Node * p, Queque &q);
 
 public:
 	Set(): root(NULL), size(0){};
@@ -50,7 +52,7 @@ public:
 	// friend Set operator+ (const Set &, const Set &);
 	friend ostream& operator << (ostream& s, const Set &a);
 	friend ostream& operator << (ostream& s, const Node &a);
-	// friend bool operator == (const Node&, const Node&);
+	friend bool operator == (const Set&, const Set&);
 	// friend bool operator== (const Set&, const Set&);
 	~Set(){
 		this->clear();

@@ -19,16 +19,14 @@ class Queque
 	int size;
 
 public:
-	Queque(){
-		first = NULL;
-		last = NULL;
-		size = 0;
-	}
+	Queque():first(NULL), last(NULL), size(0){};
 	void push(Vertices value);
 	Vertices pop();
 	bool empty() const {
 		return size == 0;
 	}
+	void clear();
+	
 	~Queque(){
 		if (!this->empty())
 			delete first;

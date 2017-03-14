@@ -1,7 +1,7 @@
 #include "Set.h"
 
 // Set Node
-Set::Node::Node(const Node* another):elem(another->elem), right(NULL), left(NULL), height(another->height){
+Set::Node::Node(const Node* another):elem(another->elem), height(another->height), right(NULL), left(NULL){
 	if (another->left)
 		left = new Node(another->left);
 	if (another->right)
@@ -124,6 +124,12 @@ void Set::merge(Set::Node*& it , const Node * another){
 	return;
 }
 
+void Set::tree_to_queque(Set::Node * p, Queque &q){
+	if (!p) return;
+	q.push(p->elem);
+	tree_to_queque(p->left, q);
+	tree_to_queque(p->right, q);
+}
 // Public
 Set::Set(const Set &another):root(NULL){
 	size = another.size;
@@ -169,7 +175,7 @@ Set::Set(const char*s)throw(Errors){
 
 void Set::insert(const Vertices & v){
 	root = insert(root, v);
-	++size;
+	size = root->upsize();
 }
 
 bool Set::contains(const Vertices &v) const{
@@ -212,15 +218,20 @@ int Set::get_size(){
 	return this->size;
 }
 
-/*bool operator == (const Set::Node & a, const Set::Node & b){
+bool operator == (const Set & a, const Set & b){
+	if (a.size != b.size) return false;
 
-	if (!&a && !&b) return true;
+	Queque q1, q2;
+	Set::tree_to_queque(a.root, q1);
+	Set::tree_to_queque(b.root, q2);
 
-	if (!(&a && &b)) return false;
-
-	bool res = (a.elem == b.elem) && *a.right == *b.right && *a.left == *b.left;
+	bool res = true;
+	while (res && !q1.empty() && !q2.empty())
+		res = res && (a.contains(q2.pop()) && b.contains(q1.pop()));
+	q1.clear();
+	q2.clear();
 	return res;
-}*/	
+}	
 
 // operator <<
 using namespace std; 

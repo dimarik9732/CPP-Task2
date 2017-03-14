@@ -41,6 +41,17 @@ List Graph::out(const Vertices &v) const{
 	return l1;
 }
 
+void Graph::remove(const Vertices& v){
+	if (!vert.contains(v)) return;
+	vert.remove(v);
+	for (int i = 0; i < edges.get_length(); ++i)
+	{
+		Edge e1 = edges[i];
+		if (e1.get_from() == v || e1.get_to() == v)
+			edges.remove(e1);
+	}
+}
+
 bool Graph::istherepath(const Vertices& v1, const Vertices& v2)const {
 	if (!vert.contains(v1) || !vert.contains(v2) ) return false;
 	Queque q1;

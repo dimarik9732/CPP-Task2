@@ -33,7 +33,7 @@ public:
 
 	List(const char* s) throw (Errors);
 	
-	void append(Edge value);
+	void append(const Edge &value);
 
 	int get_length() const;
 
@@ -45,9 +45,9 @@ public:
 
 	List& operator=(const List & another);
 
-	bool contains(Edge elem);
+	bool contains(const Edge &elem) const;
 
-	void del(Edge elem);
+	void remove(const Edge &elem);
 
 	friend ostream& operator << (ostream& s, const List & a);
 	friend bool operator == (const List&, const List&);

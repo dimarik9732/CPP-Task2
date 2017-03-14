@@ -8,7 +8,12 @@ int main(int argc, char const *argv[])
 
 	Set s2("{(17), (34), (5)}");
 
+	Set s3;
+
 	s1 += s2;
-	cout << s1 << endl;
+
+	bool res = s1 == s2;
+	cout << res << endl;
+	cout << (s1 == s3) << endl;
 	return 0;
 }

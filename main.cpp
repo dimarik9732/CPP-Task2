@@ -4,40 +4,43 @@ using namespace std;
 
 int main(void)
 {
-
-	// Graph g2("( {(1), (2), (3)} [|(1) (2)|, |(3) (1)|] )");
-	
+	int suc = 0, total = 0;
 	Edge e1(2, 3);
+	Graph g2("( {(1), (2)} [|(1) (2)|] )");
+	Graph g3("( {(1), (2), (3)} [|(1) (2)|] )");
+	Graph g4("( {(1), (2), (3)}) [|(1) (2)|, |(2) (3)|] )");
+	List l1("[|(1) (2)|]");
 
-	Graph g2("( {(1), (2)} [|(1) (2)|] )"), g3("( {(1), (2), (3)} [|(1) (2)|] )"), g4("( {(1), (2), (3)}) [|(1) (2)|, |(2) (3)|] )");	
 	g2 += 3;
 	if (g2 == g3)
-		cout << "operator += for Vertice Test +" << endl;
+		cout << "operator += for Vertice Test +" << endl , ++suc, ++total;
 	else 
-		cout << "operator += for Vertice Test -" << endl;
+		cout << "operator += for Vertice Test -" << endl, ++total;
 
 	g2 += e1;
 	if (g2 == g4)
-		cout << "operator += for Edge Test +" << endl;
+		cout << "operator += for Edge Test +" << endl, ++suc, ++total ;
 	else 
-		cout << "operator += for Edge Test -" << endl;
+		cout << "operator += for Edge Test -" << endl, ++total;
 
 	g3 += g4;
 
-	// cout << g3;
-	cout << g3 << endl;
-	// cout << g4 << endl;
+	if (g3 == g4)
+		cout << "operator += for Graph Test +" << endl, ++suc, ++total;
+	else 
+		cout << "operator += for Graph Test -" << endl, ++total;
 
-	
-	// if (g3 == g4)
-		// cout << "operator += for Graph Test +" << endl;
-	// else 
-		// cout << "operator += for Graph Test -" << endl;
+	if( l1 == g3.out(1))
+		cout << "Graph::out function Test +" << endl, ++suc, ++total;
+	else 
+		cout << "Graph::out function Test -" << endl, ++total;
 
 	if (g2.istherepath(1, 3)){
-		cout << "istherepath Test +" << endl;
+		cout << "istherepath Test +" << endl, ++suc, ++total;
 	}
 	else
-		cout << "istherepath Test -" << endl; 
+		cout << "istherepath Test -" << endl, ++total;
+
+	cout << suc << " tests succseed from " << total << endl;	 
 	return 0;
 }

@@ -31,12 +31,10 @@ public:
 		if (!vert.contains(v)) vert.insert(v);
 		return *this;
 	}
-	void del(const Vertices& v){
-		if (vert.contains(v)) vert.del(v);
-	}
-	void del(const Edge &a){
+	void remove(const Vertices& v);
+	void remove(const Edge &a){
 		if (!edges.contains(a)) return;
-		else edges.del(a);
+		else edges.remove(a);
 	}
 	// List in(const Verices &);
 	List out(const Vertices &) const;

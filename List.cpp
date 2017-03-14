@@ -76,7 +76,7 @@ List::List(const List & another){
 	}
 }
 
-void List::append(Edge value){
+void List::append(const Edge & value){
 	Node *temp = new Node(value);
 	++length;
 	if (first == NULL){
@@ -112,9 +112,9 @@ Edge& List::operator[](int n) const throw(Errors){
 List& List::operator+=(const List & another){
 	List temp(another);
 	for (int i = 0; i < temp.length; ++i)
-		if(this->contains(temp[i])) temp.del(temp[i]);
+		if(this->contains(temp[i])) temp.remove(temp[i]);
 
-	this->length += another.length;
+	this->length += temp.length;
 	this->last->next = new Node (temp.first);
 	Node *cur = this->last->next;
 	for (int i = 0; i < temp.length - 1; ++i)
@@ -144,12 +144,12 @@ List& List::operator=(const List &another){
 	return *this;
 }
 
-bool List::contains(Edge elem){
+bool List::contains(const Edge & elem) const{
 	Node* previous;
 	return first && first->findWithPrevious(elem, previous);
 }
 
-void List::del(Edge elem){
+void List::remove(const Edge & elem){
 	Node *prev;
 	Node * to_del = first->findWithPrevious(elem, prev);
 	if (!to_del) return;
@@ -212,7 +212,7 @@ bool operator == (const List&a, const List&b){
 	bool res = true;
 	for (int i = 0; i < a.length; ++i)
 	{
-		res = res && (a[i] == b[i]);
+		res = res && (a.contains(b[i])) && (b.contains(a[i]));
 		if (!res) break;
 	}
 	return res;

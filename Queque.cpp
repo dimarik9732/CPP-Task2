@@ -30,3 +30,11 @@ Vertices Queque::pop(){
 	delete tmp;
 	return temp;
 };
+
+void Queque::clear(){
+		if (!this->empty()){
+			delete first;
+			first = NULL;
+			last = NULL;
+		}
+	}
